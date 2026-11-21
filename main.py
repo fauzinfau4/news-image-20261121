@@ -1,33 +1,22 @@
-"""Deliver the finished front page to the grader's output folder.
+"""Entrypoint: copy the front-page image to the output directory.
 
-The picture is rendered by draw.py and stored here as entry.png; this
-entrypoint only copies those bytes to $MAKEFUN_OUTPUT_DIR (or /output
-when the variable is unset). Standard library only: no network, no
-clock, no rendering here, so two runs always write identical bytes.
+Standard library only. The image is drawn by draw.py and shipped in this
+repository as entry.png; this program only copies those exact bytes, so
+two runs always write identical output.
 """
 
 import os
 import shutil
 
-from pathlib import Path
-
-HERE = Path(__file__).resolve().parent
-SOURCE = HERE / "entry.png"
-FALLBACK = Path("/output")
-
-
-def target_path():
-    """Resolve the destination from the environment, with a fallback."""
-    raw = os.environ.get("MAKEFUN_OUTPUT_DIR", "").strip()
-    folder = Path(raw) if raw else FALLBACK
-    return folder / "entry.png"
-
 
 def main():
-    dest = target_path()
-    dest.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copyfile(SOURCE, dest)
-    print("Wrote %s (%d bytes)" % (dest, dest.stat().st_size))
+    here = os.path.dirname(os.path.abspath(__file__))
+    source = os.path.join(here, "entry.png")
+    out_dir = os.environ.get("MAKEFUN_OUTPUT_DIR") or "/output"
+    os.makedirs(out_dir, exist_ok=True)
+    shutil.copyfile(source, os.path.join(out_dir, "entry.png"))
+    print("wrote entry.png to", out_dir)
 
 
-main()
+if __name__ == "__main__":
+    main()
